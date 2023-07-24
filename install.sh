@@ -17,5 +17,5 @@ pyenv install 3.11
 echo "Try to install poetry"
 curl -sSL https://install.python-poetry.org | python3 -
 
-echo ". ~/bashrc/.bashrc" > ~/.bashrc
+echo ". ~/bashrc/.bashrc" >> ~/.bashrc
 
