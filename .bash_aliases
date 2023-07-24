@@ -1,0 +1,8 @@
+alias va='source .venv/bin/activate'
+alias dcu='docker compose up --build'
+alias dcd='docker compose down'
+alias rsr='python manage.py runserver'
+alias rsh='python manage.py shell'
+alias makemigrations='python manage.py makemigrations'
+alias migrate='python manage.py migrate'
+alias uu='sudo apt-get update && sudo apt-get upgrade -y'
