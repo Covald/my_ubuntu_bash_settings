@@ -1,21 +1,47 @@
-sudo apt-get update && sudo apt-get upgrade -y
+#!/usr/bin/env bash
+set -euo pipefail
 
-sudo apt-get install curl -y
-sudo apt-get install git -y
+# This script bootstraps an Ubuntu environment by installing dependencies,
+# optionally cloning the repository, and setting up development tools.
 
-echo "Try to install pyenv"
-curl https://pyenv.run | bash
+REPO_URL=${REPO_URL:-"https://github.com/yourusername/my_ubuntu_bash_settings.git"}
+INSTALL_DIR=${INSTALL_DIR:-"$HOME/my_ubuntu_bash_settings"}
 
-exec $SHELL 
+## Update package index and install basic requirements
+if command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update -y
+    sudo apt-get install -y git curl wget htop
+fi
 
-echo "pyenv successfully instaled"
-pyenv -version
+# Install desktop applications via snap if available
+if command -v snap >/dev/null 2>&1; then
+    sudo snap install vivaldi || true
+    sudo snap install telegram-desktop || true
+    sudo snap install code --classic || true
+fi
 
-echo "install latest python 3.11"
-pyenv install 3.11
+# Clone or update the repository
+if [ ! -d "$INSTALL_DIR" ]; then
+    git clone "$REPO_URL" "$INSTALL_DIR"
+else
+    git -C "$INSTALL_DIR" pull --ff-only
+fi
 
-echo "Try to install poetry"
-curl -sSL https://install.python-poetry.org | python3 -
+# Install uv if missing
+if ! command -v uv >/dev/null 2>&1; then
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
+fi
 
-echo ". ~/bashrc/.bashrc" >> ~/.bashrc
+# Install ruff using uv if missing
+if ! command -v ruff >/dev/null 2>&1; then
+    uv tool install ruff
+    export PATH="$HOME/.local/share/uv/bin:$PATH"
+fi
 
+cat <<EOM
+Installation complete.
+Repository: $INSTALL_DIR
+uv: $(uv --version 2>/dev/null || echo "not installed")
+ruff: $(ruff --version 2>/dev/null || echo "not installed")
+EOM
